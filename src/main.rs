@@ -22,9 +22,11 @@ fn main() -> Result<(), Box<dyn Error>> {
         true => {
             let name = Text::new("Var name: ")
                 .with_placeholder("ESSENTIAL_CM_HOST")
+                .with_default("ESSENTIAL_CM_HOST")
                 .prompt()?;
             let value = Text::new("Var value: ")
                 .with_placeholder("wss://connect.pixie.rip/v1")
+                .with_default("wss://connect.pixie.rip/v1")
                 .prompt()?;
 
             Installer::new(name, value)
