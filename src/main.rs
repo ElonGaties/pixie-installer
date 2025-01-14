@@ -20,12 +20,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let installer = match option_advanced {
         true => {
-            let name = Text::new("Var name: ")
-                .with_placeholder("ESSENTIAL_CM_HOST")
+            let name = Text::new("Var name:")
                 .with_default("ESSENTIAL_CM_HOST")
                 .prompt()?;
-            let value = Text::new("Var value: ")
-                .with_placeholder("wss://connect.pixie.rip/v1")
+            let value = Text::new("Var value:")
                 .with_default("wss://connect.pixie.rip/v1")
                 .prompt()?;
 
