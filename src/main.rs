@@ -1,56 +1,48 @@
 use std::error::Error;
 use std::io::{self, Read, Write};
-use std::process;
+use inquire::{Confirm, Select, Text};
+use windows_elevate::check_elevated;
+use crate::installer::Installer;
 
 mod os;
+mod installer;
 
-fn pause() {
-    print!("  \n  Press any key to continue!");
-    io::stdout().flush().unwrap();
-    let _ = io::stdin().read(&mut [0u8]).unwrap();
-}
+fn main() -> Result<(), Box<dyn Error>> {
+    if !check_elevated()? {
+        windows_elevate::elevate()?;
+    }
 
-fn run() -> Result<(), Box<dyn Error>> {
-    let default_name = "ESSENTIAL_CM_HOST".to_string();
-    let default_value = "wss://connect.pixie.rip/v1".to_string();
-    let args: Vec<String> = std::env::args().collect();
-    let (name, value) = if args.len() > 4 && args[1] == "--name" && args[3] == "--value" {
-        (&args[2], &args[4])
-    } else {
-        (&default_name, &default_value)
+    println!("Pixie.rip - The best Essential client modification.");
+
+    let option_advanced = Confirm::new("Enable advanced mode")
+        .with_default(false)
+        .prompt()?;
+
+    let installer = match option_advanced {
+        true => {
+            let name = Text::new("Var name: ")
+                .with_placeholder("ESSENTIAL_CM_HOST")
+                .prompt()?;
+            let value = Text::new("Var value: ")
+                .with_placeholder("wss://connect.pixie.rip/v1")
+                .prompt()?;
+
+            Installer::new(name, value)
+        },
+        false => Installer::default()
     };
 
-    println!("\n  Pixie.rip - The best Essential client modification.");
-    println!("  -----------------------------------------------\n");
-
-    match os::set_env_var(name, value) {
-        Ok(()) => {
-            println!("  Successfully installed!\n");
-
-            println!("  Important:");
-            println!("   - Restart your Launcher/Game to apply changes!\n");
-
-            println!("  Need help?");
-            println!("  Website: pixie.rip");
-            println!("  Discord: discord.gg/pixiemc\n");
-            println!("  If you run into any problems, join our Discord for support!\n");
-        }
-        Err(e) => {
-            println!("  \nInstallation failed!");
-            println!("  Please run the installer again as administrator.\n");
-            println!("  Need help? Join our Discord: discord.gg/pixiemc\n");
-            pause();
-            return Err(e);
-        }
+    match Select::new("Install or Uninstall", vec!["Install", "Uninstall"]).prompt()? {
+        "Install" => installer.install()?,
+        "Uninstall" => installer.uninstall()?,
+        _ => Err("unknown option (this should not happen)")?,
     }
 
-    pause();
+    {
+        print!("  \n  Press any key to continue!");
+        io::stdout().flush().unwrap();
+        let _ = io::stdin().read(&mut [0u8]).unwrap();
+    }
+
     Ok(())
-}
-
-fn main() {
-    if let Err(e) = run() {
-        println!("  Error: {}", e);
-        process::exit(1);
-    }
 }

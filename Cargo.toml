@@ -4,9 +4,11 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+inquire = "0.7.5"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 winreg = "0.52.0"
+windows-elevate = "0.1.0"
 winapi = { version = "0.3", features = ["winuser", "shellapi"] }
 
 [profile.release]

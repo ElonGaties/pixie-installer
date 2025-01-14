@@ -1,14 +1,11 @@
-use std::env;
-use std::error::Error;
-use std::fs::{self, OpenOptions};
-use std::io::Write;
-use std::path::PathBuf;
-use std::process::Command;
+#[cfg(target_os = "macos")]
+use std::{env, error::Error, fs::{self, OpenOptions}, io::Write, path::PathBuf, process::Command};
 
 // I'm very much hoping the following works noting my experience with MacOS in general, if you run into any issues/have any suggestions
 // Please make a PR <3
 
 #[allow(dead_code)]
+#[cfg(target_os = "macos")]
 pub fn set_env_var(name: &str, value: &str) -> Result<(), Box<dyn Error>> {
     std::env::set_var(name, value);
     let home = env::var("HOME")?;
@@ -57,4 +54,9 @@ pub fn set_env_var(name: &str, value: &str) -> Result<(), Box<dyn Error>> {
         .output()?;
 
     Ok(())
+}
+
+#[cfg(target_os = "macos")]
+pub fn delete_env_var(name: &str) -> Result<(), Box<dyn Error>> {
+    todo!("Implement MacOS deleting env")
 }
